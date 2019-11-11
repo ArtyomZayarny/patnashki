@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Redux</title>
+</head>
+<body>
+<h1>Hello Redux</h1>
+
+
+<script>
+
+
+    const initialState = {count:0};
+    const store = new Store(updateState,initialState)
+
+    const incAction = {type:'INCREMENT', amount:5};
+    const decAction = {type:'DECREMENT',amount:3 };
+
+    store.subscribe( () => console.log(store.state));
+    // store.subscribe( () => console.log(store.state));
+
+    store.update(incAction)
+    store.update(decAction);
+    store.update({});
+
+
+</script>
+
+
+
+
+</body>
+</html>
