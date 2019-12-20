@@ -1,118 +1,159 @@
-import React, {Component} from 'react'
-import {createStore} from "../redux";
+import React, {Component} from 'react';
+import Squares from "./Squares";
 
 
-function reducer(state = {backgroundColor: '#ccc'},action) {
-    switch (action) {
-       case 'red': return {backgroundColor: 'red'};
-       case 'aqua': return {backgroundColor: 'aqua'};
-       default:return state
-   }
+
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+function Board(arr) {
+    let letter = ['a','b','c','d'];
+    let coordinate = [];
+
+    for( let i = 0; i < arr.length; i++) {
+        let obj = {};
+          switch(i) {
+              case 0:
+              case 1:
+              case 2:
+              case 3: 
+              obj[`${letter[0]}${ i % 4}`] = arr[i]
+              coordinate.push(obj);
+              break;
+
+              case 4:
+              case 5:
+              case 6:
+              case 7:
+              obj[`${letter[1]}${ i % 4}`] = arr[i]
+              coordinate.push(obj);
+              break;
+
+              case 8:
+              case 9:
+              case 10:
+              case 11:
+              obj[`${letter[2]}${ i % 4}`] = arr[i]
+              coordinate.push(obj);
+              break;
+
+              case 12:
+              case 13:
+              case 14:
+              case 15: 
+              obj[`${letter[3]}${ i % 4}`] = arr[i]
+              coordinate.push(obj);
+              break;
+          }
+      }
+
+    return coordinate
 }
 
-const store = createStore(reducer);
 
-function selectColor(color) {
-    return color
-}
 
 class Game extends Component {
-
     constructor() {
-        super();
-
+        super()
+        this.initBoard = Array.from(Array(16), (item,index) => index + 1);
+        this.shuffled = shuffle(this.initBoard);
+        this.board = Board(this.shuffled)
         this.state = {
-           empty: {row:4,col:4,val:''}
+            board: this.board,
+            white:'',
         }
-
-
     }
 
     componentDidMount() {
-        store.subscribe(()=> this.forceUpdate())
+       const board = this.state.board;
+       const whiteCoordinaate = board.filter( (obj) => {
+          if (obj[Object.keys(obj)[0]] === 16) {
+              return Object.keys(obj)[0]
+          }
+       })
+   
+       this.setState({
+           white:whiteCoordinaate
+       });
     }
+   
 
+    getCoordinate = (cord,white,board,num) => {
+        let request = cord.split('');
 
-    changeColor = (color) => {
-        store.dispatch(selectColor(color))
-    }
+        let curWhite = Object.keys(white[0]);
+         let emptyCord = curWhite[0].split('');
+       
+         let cords = {
+             a:0,
+             b:1,
+             c:2,
+             d:3
+         }
+        if (emptyCord[0] === request[0]) {
+            
+           
+           // gorizontallly moves
+            if (Math.abs(emptyCord[1] - request[1]) === 1) {
+               console.log(board)
+                let newBoard = board.map( (item) => {
+                    let requestVal = `${num}`;
+                    let requestCord = `${cord}`;
+                    if (item[`${cord}`]) {
+                            let newWhite = {};
+                            newWhite[`${cord}`] = 16;
+                            return newWhite
+                    } 
+                    if (item[`${curWhite}`]) {
+                        let newItem = {};
+                        newItem[`${curWhite}`] = +requestVal;
+                        return newItem
+                    } 
+                        return item
+            
+   
+                });
 
+                this.setState({
+                    board:newBoard
+                })
 
-    canGo = (el) => {
-       let empty = this.state.empty;
-        // console.log(el);
-        // console.log(empty);
+          
+            } else {
+                console.log('Can\'t go');
+            }
 
-       if ((empty.col - el.col ===  1 && empty.row === el.row) ||  // move horizontally left
-           (empty.col - el.col === -1 && empty.row === el.row) ||  // move horizontaly right
-           (empty.row - el.row ===  1 && el.col === empty.col) || // move vertically up
-           (empty.row - el.row === -1 && el.col === empty.col) //move vertically down
-       ) {
-           return true
-       }
+        } else if(emptyCord[1] === request[1]) {
+            let xEmpty = emptyCord[0];
+            let xRequest = request[0]
 
-
-    }
-    handleAction = (curEl) => {
-        console.log(curEl);
-        console.log(this.state.empty);
-
-        if (this.canGo(curEl)) {
-            this.setState({
-                empty:curEl
-            })
+            if (Math.abs(cords[xRequest] - cords[xEmpty]) === 1) {
+                console.log('Go')
+            } else {
+                console.log('Can\'t go');
+            }
+            
+            
+        } else {
+            console.log('Can\'t go');
         }
+        
+      console.log(`Request -- ${cord}:${num}  --- White is ${curWhite} `)
 
-    }
-
-    isEmpty = (el) => {
-        let empty = '';
-        let state = this.state.empty;
-
-        if (el.row === state.row && el.col === state.col ) {
-            empty = 'empty'
-        }
-        return empty
+            
     }
 
     render() {
-        const color = store.getState();
-        return (
+    
+
+
+        return(
             <div>
-                <div className="board" style={color}>
-                    <div className="row">
-                        <div className="square" data-empty={this.isEmpty({row:1,col:1})} onClick={()=>{this.handleAction({row:1, col:1})}}></div>
-                        <div className="square" data-empty={this.isEmpty({row:1,col:2})} onClick={()=>{this.handleAction({row:1, col:2})}}></div>
-                        <div className="square" data-empty={this.isEmpty({row:1,col:3})} onClick={()=>{this.handleAction({row:1, col:3})}}></div>
-                        <div className="square" data-empty={this.isEmpty({row:1,col:4})} onClick={()=>{this.handleAction({row:1, col:4})}}></div>
-                    </div>
-                    <div className="row">
-                        <div className="square" data-empty={this.isEmpty({row:2,col:1})} onClick={()=>{this.handleAction({row:2, col:1})}}></div>
-                        <div className="square" data-empty={this.isEmpty({row:2,col:2})} onClick={()=>{this.handleAction({row:2, col:2})}}></div>
-                        <div className="square" data-empty={this.isEmpty({row:2,col:3})} onClick={()=>{this.handleAction({row:2, col:3})}}></div>
-                        <div className="square" data-empty={this.isEmpty({row:2,col:4})} onClick={()=>{this.handleAction({row:2, col:4})}}></div>
-                    </div>
-                    <div className="row">
-                        <div className="square" data-empty={this.isEmpty({row:3,col:1})} onClick={()=>{this.handleAction({row:3, col:1})}}></div>
-                        <div className="square" data-empty={this.isEmpty({row:3,col:2})} onClick={()=>{this.handleAction({row:3, col:2})}}></div>
-                        <div className="square" data-empty={this.isEmpty({row:3,col:3})} onClick={()=>{this.handleAction({row:3, col:3})}}></div>
-                        <div className="square" data-empty={this.isEmpty({row:3,col:4})} onClick={()=>{this.handleAction({row:3, col:4})}}></div>
-                    </div>
-                    <div className="row">
-                        <div className="square" data-empty={this.isEmpty({row:4,col:1})} onClick={()=>{this.handleAction({row:4, col:1})}}></div>
-                        <div className="square" data-empty={this.isEmpty({row:4,col:2})} onClick={()=>{this.handleAction({row:4, col:2})}}></div>
-                        <div className="square" data-empty={this.isEmpty({row:4,col:3,val:13})} onClick={()=>{this.handleAction({row:4, col:3})}}></div>
-                        <div className="square" data-empty={this.isEmpty({row:4,col:4,val:16})} onClick={()=>{this.handleAction({row:4, col:4})}}></div>
-                    </div>
-                </div>
-                <button className='red circle' onClick={() => {this.changeColor('red')}}></button>
-                <button className='aqua circle' onClick={() => {this.changeColor('aqua')}}></button>
+                <Squares white={this.state.white} handleClick={this.getCoordinate} data={this.state.board}/>
             </div>
 
-
-            )
+                )
 
     }
 }
-
 export default Game
