@@ -19,11 +19,6 @@ const SquareItem = (props) => {
 }
 
 class Squares extends Component{
-    constructor(props){
-        super(props);
-       
-    }
-   
 
     render() {
         const {
